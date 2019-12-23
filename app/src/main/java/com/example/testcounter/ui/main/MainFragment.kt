@@ -7,14 +7,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.example.testcounter.R
+import javax.inject.Inject
 
 class MainFragment : Fragment() {
 
+    @Inject
+    lateinit var counterAdapter: CounterAdapter
+
+    @Inject
+    private lateinit var viewModel: MainViewModel
+
     companion object {
         fun newInstance() = MainFragment()
-    }
 
-    private lateinit var viewModel: MainViewModel
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
