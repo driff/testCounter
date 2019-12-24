@@ -46,8 +46,10 @@ dependencies {
     implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation "com.google.dagger:dagger-android-support:$daggerVersion" // if you use the support libraries
-    annotationProcessor "com.google.dagger:dagger-android-processor:$daggerVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$logginInterceptVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion" // if you use the support libraries
+    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'

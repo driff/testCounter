@@ -1,17 +1,17 @@
 package com.example.testcounter
 
 import android.app.Application
-import dagger.android.AndroidInjector
-import dagger.android.HasAndroidInjector
-import javax.inject.Inject
+import com.example.testcounter.di.components.AppComponent
+import com.example.testcounter.di.components.DaggerAppComponent
 
 class CounterApp: Application() {
 
-//    lateinit var dagger: AppComponent
+    lateinit var dagger: AppComponent
+        private set
 
     override fun onCreate() {
         super.onCreate()
-//        dagger = AppComponent.create()
+        dagger = DaggerAppComponent.builder().build()
     }
 
 }

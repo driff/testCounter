@@ -39,4 +39,5 @@ ext {
     daggerVersion = '2.25.3'
     lifeCycleVersion = '2.1.0'
     constraintLayoutVersion = '1.1.3'
+    logginInterceptVersion = '3.10.0'
 }
