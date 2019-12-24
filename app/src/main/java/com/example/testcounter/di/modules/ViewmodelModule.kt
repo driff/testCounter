@@ -1,6 +1,5 @@
 package com.example.testcounter.di.modules
 
-import android.content.Context
 import androidx.lifecycle.ViewModelProviders
 import com.example.testcounter.di.PerActivity
 import com.example.testcounter.ui.main.MainFragment
@@ -9,12 +8,12 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-class ActivityModule(private val activityContext: Context) {
+object ViewmodelModule {
 
     @Provides
     @PerActivity
-    fun provideActivityContext(): Context {
-        return activityContext
-    }
+    fun providesViewModel(fragment: MainFragment) = ViewModelProviders.of(fragment).get(
+        MainViewModel::class.java)
+
 
 }
