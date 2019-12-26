@@ -17,10 +17,12 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     defaultConfig {
+        vectorDrawables.useSupportLibrary = true
         applicationId "com.example.testcounter"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
+        multiDexEnabled true
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,5 +57,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation "androidx.multidex:multidex:$multidex_version"
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'com.google.android.material:material:1.0.0'
 }

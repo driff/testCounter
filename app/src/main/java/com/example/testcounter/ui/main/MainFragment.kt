@@ -2,12 +2,17 @@ package com.example.testcounter.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.testcounter.MainActivity
 import com.example.testcounter.R
+import com.example.testcounter.data.models.Counter
+import kotlinx.android.synthetic.main.counter_fragment.*
+import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
@@ -39,9 +44,29 @@ class MainFragment : Fragment() {
 //        Log.d(TAG, "checking instance: adapter -> $counterAdapter | viewmodel: $viewModel")
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        countersRecycler.apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = counterAdapter
+        }
+        fab.setOnClickListener(this::showCounterDialog)
+    }
+
+    fun showCounterDialog(view: View) {
+        // TODO: Call dialog
+    }
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         // TODO: Use the ViewModel
+        viewModel.counterList.observe(this, countersObserver)
+    }
+
+    // Observers
+    val countersObserver = Observer<List<Counter>> {
+        counterAdapter.setCounters(it)
     }
 
 }

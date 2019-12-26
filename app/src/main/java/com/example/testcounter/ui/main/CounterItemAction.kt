@@ -1,26 +1,26 @@
 package com.example.testcounter.ui.main
 
+import android.util.Log
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.di.PerActivity
-import io.reactivex.subjects.AsyncSubject
 import javax.inject.Inject
 
 @PerActivity
-class CounterItemAction @Inject constructor() : CounterAdapter.ItemActions {
+class CounterItemAction @Inject constructor(val viewModel: MainViewModel) : CounterAdapter.ItemActions {
 
-    val onIncrease = AsyncSubject.create<Counter>()
-    val onDecrease = AsyncSubject.create<Counter>()
-    val onDelete = AsyncSubject.create<Counter>()
+    val TAG = this.javaClass.canonicalName
 
     override fun increase(counter: Counter) {
-        onIncrease.onNext(counter)
+        Log.d(TAG, "increase: $counter")
+        viewModel.updateCounter(counter)
     }
 
     override fun decrease(counter: Counter) {
-        onDecrease.onNext(counter)
+        Log.d(TAG, "decrease: $counter")
+        viewModel.updateCounter(counter, false)
     }
 
     override fun delete(counter: Counter) {
-        onDelete.onNext(counter)
+        Log.d(TAG, "delete: $counter")
     }
 }
