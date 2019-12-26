@@ -1,15 +1,21 @@
 package com.example.testcounter.di.components
 
 import android.content.Context
-import com.example.testcounter.data.models.network.NetworkService
-import com.example.testcounter.di.modules.AppModule
+import com.example.testcounter.di.modules.AppSubcomponents
 import com.example.testcounter.di.modules.NetworkModule
+import dagger.BindsInstance
 import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(modules = [AppModule::class, NetworkModule::class])
+@Component(modules = [NetworkModule::class, AppSubcomponents::class])
 interface AppComponent {
-    fun getAppContext(): Context
-    fun getNetworkService(): NetworkService
+
+    @Component.Factory
+    interface Factory {
+        fun create(@BindsInstance context: Context): AppComponent
+    }
+
+    fun activityComponent(): ActivityComponent.Factory
+
 }

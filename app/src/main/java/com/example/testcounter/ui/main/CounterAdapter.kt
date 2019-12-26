@@ -6,11 +6,16 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
+import com.example.testcounter.di.PerActivity
 import kotlinx.android.synthetic.main.counter_item.view.*
+import javax.inject.Inject
 
-class CounterAdapter(private var counters: List<Counter>, val actionListener: CounterItemActions): RecyclerView.Adapter<CounterAdapter.CounterHolder>() {
+@PerActivity
+class CounterAdapter @Inject constructor(val actionListener: ItemActions): RecyclerView.Adapter<CounterAdapter.CounterHolder>() {
 
-    interface CounterItemActions {
+    private var counters = listOf<Counter>()
+
+    interface ItemActions {
         fun increase(counter: Counter)
         fun decrease(counter: Counter)
         fun delete(counter: Counter)

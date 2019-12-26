@@ -1,4 +1,4 @@
-package com.example.testcounter.data.models.network
+package com.example.testcounter.data.network
 
 import com.example.testcounter.data.models.Counter
 import io.reactivex.Single

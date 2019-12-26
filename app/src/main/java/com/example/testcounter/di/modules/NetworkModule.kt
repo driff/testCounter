@@ -1,6 +1,6 @@
 package com.example.testcounter.di.modules
 
-import com.example.testcounter.data.models.network.NetworkService
+import com.example.testcounter.data.network.NetworkService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
