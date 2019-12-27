@@ -1,9 +1,11 @@
 package com.example.testcounter.di.components
 
+import android.content.Context
 import com.example.testcounter.MainActivity
 import com.example.testcounter.di.PerActivity
 import com.example.testcounter.di.modules.CounterActionsModule
 import com.example.testcounter.ui.main.MainFragment
+import dagger.BindsInstance
 import dagger.Subcomponent
 
 @PerActivity

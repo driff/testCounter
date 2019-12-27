@@ -2,15 +2,18 @@ package com.example.testcounter.ui.main
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.testcounter.MainActivity
 import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
+import com.example.testcounter.ui.factory.ViewModelFactory
 import kotlinx.android.synthetic.main.counter_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
@@ -24,6 +27,8 @@ class MainFragment : Fragment() {
     lateinit var itemActions: CounterItemAction
 
     @Inject
+    lateinit var viewModeFactory: ViewModelFactory<MainViewModel>
+
     lateinit var viewModel: MainViewModel
 
     companion object {
@@ -41,6 +46,7 @@ class MainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (activity!! as MainActivity).activityComponent.inject(this)
+        viewModel = ViewModelProviders.of(this, viewModeFactory).get(MainViewModel::class.java)
 //        Log.d(TAG, "checking instance: adapter -> $counterAdapter | viewmodel: $viewModel")
     }
 
@@ -65,7 +71,8 @@ class MainFragment : Fragment() {
     }
 
     // Observers
-    val countersObserver = Observer<List<Counter>> {
+    private val countersObserver = Observer<List<Counter>> {
+        Log.d(TAG, "list changed!!")
         counterAdapter.setCounters(it)
     }
 

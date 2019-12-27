@@ -24,7 +24,7 @@ class MainViewModel @Inject constructor(): ViewModel() {
     private fun loadCounters() {
         Log.d(TAG, "Load Counters")
         counterList.postValue(listOf(
-            Counter(1, "title 1", 0),
+            Counter(1, "title 1", (Math.random()*10).toInt()),
             Counter(2, "title 2", 0),
             Counter(3, "title 3", 0),
             Counter(4, "title 4", 0)
@@ -35,13 +35,20 @@ class MainViewModel @Inject constructor(): ViewModel() {
      * updates the counter value, if no 2nd parameter is passed, it will increase the value
      */
     fun updateCounter(counter: Counter, increase: Boolean = true) {
-        val refCopy = this.counterList.value
+        val refCopy = this.counterList.value?.toMutableList()
         if (!refCopy.isNullOrEmpty()) {
-            when(increase) {
-                true -> refCopy.find{ it.id == counter.id }?.count = counter.count?.plus(1)?: 1
-                false -> refCopy.find{ it.id == counter.id }?.count = counter.count?.minus(1)?: 0
+            if(increase) {
+                refCopy.find { it.id == counter.id }?.count = counter.count?.plus(1)
+            }else {
+                refCopy.find{ it.id == counter.id }?.count = counter.count?.minus(1)
             }
-            counterList.postValue(refCopy)
+            this.counterList.postValue(refCopy)
+            counterList.value?.forEach {
+                Log.d(MainFragment.TAG, "counters ${it.count}")
+            }
+            Log.d(TAG, "counterList changed")
+        } else {
+            Log.d(TAG, "Null or empty")
         }
     }
 

@@ -4,4 +4,4 @@ import com.example.testcounter.di.components.ActivityComponent
 import dagger.Module
 
 @Module(subcomponents = [ActivityComponent::class])
-class AppSubcomponents
+object AppSubcomponents
