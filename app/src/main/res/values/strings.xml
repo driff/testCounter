@@ -3,4 +3,5 @@
     <string name="text_btn_increase">+</string>
     <string name="text_txv_counter">0</string>
     <string name="text_btn_decrease">-</string>
+    <string name="title_new_counter_input">New counter title</string>
 </resources>

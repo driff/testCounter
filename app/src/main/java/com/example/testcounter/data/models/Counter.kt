@@ -6,8 +6,10 @@ import io.realm.annotations.Ignore
 import io.realm.annotations.PrimaryKey
 
 open class Counter(
-    @Ignore @SerializedName("id") open var id: Long? = null,
+    @PrimaryKey var localId: Long?,
     open var title: String? = null,
     open var count: Int? = null,
-    @PrimaryKey open var ext_id: Long? = null
-): RealmObject()
+    @SerializedName("id") open var serverId: Long? = null
+): RealmObject() {
+    constructor() : this(null, null, null, null)
+}

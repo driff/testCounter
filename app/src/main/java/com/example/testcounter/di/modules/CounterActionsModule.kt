@@ -5,7 +5,6 @@ import com.example.testcounter.ui.main.CounterAdapter
 import com.example.testcounter.ui.main.CounterItemAction
 import dagger.Binds
 import dagger.Module
-import dagger.Provides
 
 @Module
 abstract class CounterActionsModule {
