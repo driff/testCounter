@@ -1,42 +1,40 @@
 package com.example.testcounter.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.LiveDataReactiveStreams
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
-import io.reactivex.Observable
-import io.realm.Realm
+import io.reactivex.disposables.CompositeDisposable
 import javax.inject.Inject
 
 @PerActivity
-class MainViewModel @Inject constructor(val repo: Repository) : ViewModel() {
+class MainViewModel @Inject constructor(private val repo: Repository) : ViewModel() {
+
+    private val disposables = CompositeDisposable()
 
     val TAG = this.javaClass.canonicalName
-    lateinit var counterList: LiveData<List<Counter>>
-    lateinit var countTotals: LiveData<CounterTotals>
+    val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
+    val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
 
     init {
-        Log.d(TAG, "Init")
         loadCounters()
     }
 
-    // TODO: calculate totals when the list updates
-
     private fun loadCounters() {
-        // TODO: Figure out how to reuse this observable
-        val fetchCounters = repo.getAllCounters().map { it.toList() }
-        counterList = LiveDataReactiveStreams.fromPublisher(fetchCounters)
-        countTotals = LiveDataReactiveStreams.fromPublisher(
-            fetchCounters.map {
-                CounterTotals(it.size, it.reduce { acc, counter ->
-                    acc.count = acc.count?.plus(counter?.count ?: 0)
-                    acc
-                }.count ?: 0)
-            })
+        val counters = repo.getAllCounters().map { it.toList() }.onErrorReturnItem(listOf())
+        disposables.add(counters.subscribe {
+            counterList.postValue(it)
+        })
+        disposables.add(counters.map {
+            if(it.isEmpty()) {
+                return@map CounterTotals(0, 0)
+            } else {
+                return@map CounterTotals(it.size, it.sumBy { current -> current.count ?: 0 })
+            }
+        }.subscribe { countTotals.postValue(it) })
+
     }
 
     /**
@@ -61,7 +59,8 @@ class MainViewModel @Inject constructor(val repo: Repository) : ViewModel() {
     }
 
     override fun onCleared() {
-        repo.onClear()
+        repo.clear()
+        disposables.clear()
         super.onCleared()
     }
 }

@@ -43,7 +43,7 @@ object NetworkModule {
             .callFactory(callFactory)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .baseUrl("localhost:3000")
+            .baseUrl("http://172.18.20.225:3000")
             .build()
     }
 

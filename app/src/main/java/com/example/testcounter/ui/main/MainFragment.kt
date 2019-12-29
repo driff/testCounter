@@ -63,8 +63,10 @@ class MainFragment : Fragment() {
     }
 
     fun fabAction(view: View) {
-        this.viewModel.addNewCounter(edtNewCounterTitle.text.toString()).also {
-            edtNewCounterTitle.text?.clear()
+        if(!edtNewCounterTitle.text.isNullOrEmpty() && edtNewCounterTitle.text?.length!! < 30) {
+            this.viewModel.addNewCounter(edtNewCounterTitle.text.toString()).also {
+                edtNewCounterTitle.text?.clear()
+            }
         }
     }
 
@@ -72,7 +74,6 @@ class MainFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         // TODO: Use the ViewModel
         viewModel.counterList.observe(this, countersObserver)
-        viewModel.countTotals.observe(this, totalsObserver)
         Log.d(TAG, "Activity created...")
     }
 
@@ -80,10 +81,6 @@ class MainFragment : Fragment() {
     private val countersObserver = Observer<List<Counter>> {
         Log.d(TAG, "list changed!!")
         counterAdapter.setCounters(it)
-    }
-
-    private val totalsObserver = Observer<CounterTotals> {
-        Log.d(TAG, "Total: ${it.sumTotal}")
     }
 
 }
