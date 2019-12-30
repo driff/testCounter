@@ -7,6 +7,7 @@ import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
 import io.reactivex.disposables.CompositeDisposable
+import java.util.*
 import javax.inject.Inject
 
 @PerActivity
@@ -42,9 +43,9 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
      */
     fun updateCounter(counter: Counter, increase: Boolean = true) {
         if (increase) {
-            repo.updateCounter(counter.localId, counter.count?.plus(1)!!)
+            repo.increaseCounter(counter.localId!!, counter.serverId)
         } else {
-            repo.updateCounter(counter.localId, counter.count?.minus(1)!!)
+            repo.decreaseCounter(counter.localId!!, counter.serverId)
         }
     }
 
@@ -54,7 +55,7 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
 
     fun addNewCounter(title: String) {
         if (!title.isEmpty()) {
-            repo.addCounter((Math.random() * Math.random() * Math.random() * 10000).toLong(), title)
+            repo.addCounter(UUID.randomUUID().toString(), title)
         }
     }
 
