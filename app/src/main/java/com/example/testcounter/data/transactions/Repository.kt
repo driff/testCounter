@@ -2,13 +2,12 @@ package com.example.testcounter.data.transactions
 
 import android.util.Log
 import com.example.testcounter.data.models.Counter
+import com.example.testcounter.data.models.UnsyncedChanges
 import com.example.testcounter.data.network.NetworkService
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import io.realm.RealmResults
 import javax.inject.Inject
 
 class Repository @Inject constructor(val network: NetworkService, val errorHandler: SyncErrorHandler) {
@@ -33,79 +32,73 @@ class Repository @Inject constructor(val network: NetworkService, val errorHandl
                     Log.d(TAG, "list: ${list.toString()}")
                 }, {
                     Log.e(TAG, it.message?: "Error")
+                    errorHandler.handleFailure(Counter(id, title), SyncType.CREATE)
                 })
         })
-    }
-
-    fun decreaseCounter(localId: String, serverId: String? = null) {
-        disposable.add(realm.where(Counter::class.java).equalTo("localId", localId)
-            .findAllAsync()
-            .asFlowable()
-            .filter(RealmResults<Counter>::isLoaded)
-            .map { it[0]!! }
-            .map {
-                Log.d(TAG, "count: ${it.count}")
-                it.count = it.count?.minus(1); it}
-            .concatMap { network.decreaseCounter(it).toFlowable()
-                .map { _ -> it }
-                .doOnError {err ->
-                    Log.e(TAG, err.message?: "Error sync network")
-                    errorHandler.handleDecreaseFailed(it)
-                }
-            }.subscribe({
-                Log.d(TAG, "Success")
-            }, {
-                Log.e(TAG, it.message?: "Error")
-            }))
-       /*
-        realm.executeTransactionAsync ({
-            val updateCounter = it.where(Counter::class.java).equalTo("localId", localId).findFirst()
-            updateCounter?.count = updateCounter?.count?.minus(1)
-        }, {  ->
-            network.decreaseCounter(Counter(localId, serverId = serverId))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({list: List<Counter>? ->
-                    Log.d(TAG, "list: ${list.toString()}")
-                }, {
-                    Log.e(TAG, it.message?: "Error")
-                })
-        }) */
-    }
-
-    fun deleteCounter(id: String) {
-        realm.executeTransactionAsync {
-            it.where(Counter::class.java).equalTo("localId", id).findFirst()?.deleteFromRealm()
-        }
-    }
-
-    fun getAllCounters() = this.realm.where(Counter::class.java).findAll().asFlowable()
-
-    fun clear() {
-        realm.close()
-        disposable.clear()
     }
 
     // TODO: Create a table to store unsynced changes, when persist on server fails, save the update in this table
     // and call work manager to handle background sync, if no serverId is provided it means the counter has not been synced
     // so the app needs to create it first, since the server only handles increase by 1 and decrease by 1, each update needs to be stored locally
     // after all the data has been synced, update the counter that needs to be updated
-    // this method needs a fix, maybe get counter localId and serverId since counter cant be accessed in a different thread
-    fun increaseCounter(localId: String, serverId: String? = null) {
+    fun increaseCounter(counter: Counter) {
         realm.executeTransactionAsync ({
             Log.d("Repo", "repo transaction")
-            val updateCounter = it.where(Counter::class.java).equalTo("localId", localId).findFirst()
+            val updateCounter = it.where(Counter::class.java).equalTo("localId", counter.localId).findFirst()
             updateCounter?.count = updateCounter?.count?.plus(1)
         }, {  ->
-            network.increaseCounter(Counter(localId, serverId = serverId))
+            network.increaseCounter(counter)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({list: List<Counter>? ->
                     Log.d(TAG, "list: ${list.toString()}")
                 }, {
                     Log.e(TAG, it.message?: "Error")
+                    errorHandler.handleFailure(counter, SyncType.INCREASE)
                 })
         })
+    }
+
+    fun decreaseCounter(counter: Counter) {
+        realm.executeTransactionAsync ({
+            val updateCounter = it.where(Counter::class.java).equalTo("localId", counter.localId).findFirst()
+            updateCounter?.count = updateCounter?.count?.minus(1)
+        }, {  ->
+            network.decreaseCounter(counter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({list: List<Counter>? ->
+                    Log.d(TAG, "list: ${list.toString()}")
+                }, {
+                    Log.e(TAG, it.message?: "Error")
+                    errorHandler.handleFailure(counter, SyncType.DECREASE)
+                })
+        })
+    }
+
+    fun deleteCounter(counter: Counter) {
+        realm.executeTransactionAsync ({
+            it.where(Counter::class.java).equalTo("localId", counter.localId).findFirst()?.deleteFromRealm()
+        }, { ->
+            network.deleteCounter(counter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe({list ->
+                    Log.d(TAG, "list: ${list?.toString()}")
+                }, {
+                    Log.e(TAG, it.message?: "Error")
+                    errorHandler.handleFailure(counter, SyncType.DELETE)
+                })
+        })
+    }
+
+    fun getAllCounters() = this.realm.where(Counter::class.java).findAll().asFlowable()
+
+    fun getAllPendingSync() = this.realm.where(UnsyncedChanges::class.java).findAll().asFlowable()
+
+    fun clear() {
+        realm.close()
+        disposable.clear()
     }
 
 }

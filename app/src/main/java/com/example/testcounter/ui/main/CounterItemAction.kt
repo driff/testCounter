@@ -1,6 +1,5 @@
 package com.example.testcounter.ui.main
 
-import android.util.Log
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.di.PerActivity
 import javax.inject.Inject

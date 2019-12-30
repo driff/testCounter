@@ -4,8 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.testcounter.data.models.Counter
+import com.example.testcounter.data.models.UnsyncedChanges
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
+import com.example.testcounter.utils.unmanagedCopy
 import io.reactivex.disposables.CompositeDisposable
 import java.util.*
 import javax.inject.Inject
@@ -18,6 +20,7 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     val TAG = this.javaClass.canonicalName
     val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
     val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
+    val unsynced: MutableLiveData<List<UnsyncedChanges>> = MutableLiveData()
 
     init {
         loadCounters()
@@ -35,7 +38,10 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
                 return@map CounterTotals(it.size, it.sumBy { current -> current.count ?: 0 })
             }
         }.subscribe { countTotals.postValue(it) })
-
+        disposables.add(repo.getAllPendingSync().map { it.toList() }
+            .subscribe{
+                unsynced.postValue(it)
+            })
     }
 
     /**
@@ -43,14 +49,14 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
      */
     fun updateCounter(counter: Counter, increase: Boolean = true) {
         if (increase) {
-            repo.increaseCounter(counter.localId!!, counter.serverId)
+            repo.increaseCounter(counter.unmanagedCopy())
         } else {
-            repo.decreaseCounter(counter.localId!!, counter.serverId)
+            repo.decreaseCounter(counter.unmanagedCopy())
         }
     }
 
     fun deleteCounter(counter: Counter) {
-        repo.deleteCounter(counter.localId!!)
+        repo.deleteCounter(counter.unmanagedCopy())
     }
 
     fun addNewCounter(title: String) {
