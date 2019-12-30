@@ -4,14 +4,17 @@ import android.util.Log
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.network.NetworkService
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
+import io.realm.RealmResults
 import javax.inject.Inject
 
-class Repository @Inject constructor(val network: NetworkService) {
+class Repository @Inject constructor(val network: NetworkService, val errorHandler: SyncErrorHandler) {
 
-    val TAG = this.javaClass.canonicalName
+    private val TAG = this.javaClass.canonicalName
+    private val disposable = CompositeDisposable()
 
     private val realm: Realm = Realm.getDefaultInstance()
 
@@ -35,8 +38,27 @@ class Repository @Inject constructor(val network: NetworkService) {
     }
 
     fun decreaseCounter(localId: String, serverId: String? = null) {
+        disposable.add(realm.where(Counter::class.java).equalTo("localId", localId)
+            .findAllAsync()
+            .asFlowable()
+            .filter(RealmResults<Counter>::isLoaded)
+            .map { it[0]!! }
+            .map {
+                Log.d(TAG, "count: ${it.count}")
+                it.count = it.count?.minus(1); it}
+            .concatMap { network.decreaseCounter(it).toFlowable()
+                .map { _ -> it }
+                .doOnError {err ->
+                    Log.e(TAG, err.message?: "Error sync network")
+                    errorHandler.handleDecreaseFailed(it)
+                }
+            }.subscribe({
+                Log.d(TAG, "Success")
+            }, {
+                Log.e(TAG, it.message?: "Error")
+            }))
+       /*
         realm.executeTransactionAsync ({
-            Log.d("Repo", "repo transaction")
             val updateCounter = it.where(Counter::class.java).equalTo("localId", localId).findFirst()
             updateCounter?.count = updateCounter?.count?.minus(1)
         }, {  ->
@@ -48,7 +70,7 @@ class Repository @Inject constructor(val network: NetworkService) {
                 }, {
                     Log.e(TAG, it.message?: "Error")
                 })
-        })
+        }) */
     }
 
     fun deleteCounter(id: String) {
@@ -61,6 +83,7 @@ class Repository @Inject constructor(val network: NetworkService) {
 
     fun clear() {
         realm.close()
+        disposable.clear()
     }
 
     // TODO: Create a table to store unsynced changes, when persist on server fails, save the update in this table
@@ -69,7 +92,6 @@ class Repository @Inject constructor(val network: NetworkService) {
     // after all the data has been synced, update the counter that needs to be updated
     // this method needs a fix, maybe get counter localId and serverId since counter cant be accessed in a different thread
     fun increaseCounter(localId: String, serverId: String? = null) {
-        Log.d(TAG, "localId: $localId serverId: $serverId")
         realm.executeTransactionAsync ({
             Log.d("Repo", "repo transaction")
             val updateCounter = it.where(Counter::class.java).equalTo("localId", localId).findFirst()
