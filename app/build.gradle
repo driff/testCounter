@@ -6,9 +6,6 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
-apply plugin: 'realm-android'
-
-
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -35,10 +32,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-}
-
-realm {
-    kotlinExtensionsEnabled = true
 }
 
 

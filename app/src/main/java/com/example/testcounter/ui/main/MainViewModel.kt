@@ -1,15 +1,15 @@
 package com.example.testcounter.ui.main
 
-import androidx.lifecycle.LiveData
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.testcounter.data.models.Counter
-import com.example.testcounter.data.models.UnsyncedChanges
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
-import com.example.testcounter.utils.unmanagedCopy
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
-import java.util.*
+import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 
 @PerActivity
@@ -20,56 +20,59 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     val TAG = this.javaClass.canonicalName
     val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
     val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
-    val unsynced: MutableLiveData<List<UnsyncedChanges>> = MutableLiveData()
 
     init {
         loadCounters()
     }
 
     private fun loadCounters() {
-        val counters = repo.getAllCounters().map { it.toList() }.onErrorReturnItem(listOf())
-        disposables.add(counters.subscribe {
-            counterList.postValue(it)
-        })
-        disposables.add(counters.map {
-            if(it.isEmpty()) {
-                return@map CounterTotals(0, 0)
-            } else {
-                return@map CounterTotals(it.size, it.sumBy { current -> current.count ?: 0 })
-            }
-        }.subscribe { countTotals.postValue(it) })
-        disposables.add(repo.getAllPendingSync().map { it.toList() }
-            .subscribe{
-                unsynced.postValue(it)
-            })
+        disposables.add(countersObserverHandler(repo.fetchCounters().toObservable()))
     }
 
     /**
      * updates the counter value, if no 2nd parameter is passed, it will increase the value
      */
     fun updateCounter(counter: Counter, increase: Boolean = true) {
-        if (increase) {
-            repo.increaseCounter(counter.unmanagedCopy())
+        val obs = if (increase) {
+            repo.increaseCounter(counter)
         } else {
-            repo.decreaseCounter(counter.unmanagedCopy())
+            repo.decreaseCounter(counter)
         }
+        disposables.add(countersObserverHandler(obs.toObservable()))
     }
 
     fun deleteCounter(counter: Counter) {
-        repo.deleteCounter(counter.unmanagedCopy())
+        disposables.add(countersObserverHandler(repo.deleteCounter(counter).toObservable()))
     }
 
     fun addNewCounter(title: String) {
         if (!title.isEmpty()) {
-            repo.addCounter(UUID.randomUUID().toString(), title)
+            disposables.add( countersObserverHandler(repo.addCounter(title).toObservable()))
         }
     }
 
+    private fun countersObserverHandler(obs: Observable<List<Counter>>) = obs.concatMap {list ->
+        if(list.isEmpty()) {
+            return@concatMap Observable.just(CounterTotals(0, 0, listOf()))
+        }
+        Observable.fromIterable(list).reduce(CounterTotals(list.size, 0, list),
+            { t1, t2 ->
+                return@reduce CounterTotals(list.size, t1.sumTotal + t2.count, list)
+            }).toObservable()
+    }.firstOrError()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe ({ t ->
+            counterList.postValue(t.counters)
+            countTotals.postValue(t)
+        }, { err->
+            Log.d(TAG, err.message?: "Viewmodel Error")
+        })
+
     override fun onCleared() {
-        repo.clear()
         disposables.clear()
         super.onCleared()
     }
 }
 
-data class CounterTotals(val count: Int = 0, val sumTotal: Int = 0)
+data class CounterTotals(val count: Int = 0, val sumTotal: Int = 0, val counters: List<Counter>)
