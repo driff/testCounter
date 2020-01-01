@@ -2,7 +2,6 @@ package com.example.testcounter.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import android.text.Editable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -49,6 +48,7 @@ class MainFragment : Fragment() {
         super.onAttach(context)
         (activity!! as MainActivity).activityComponent.inject(this).also {
             viewModel = ViewModelProviders.of(this, viewModeFactory).get(MainViewModel::class.java)
+            Log.d(TAG, "Viewmodel ref: $viewModel")
         }
     }
 

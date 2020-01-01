@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         activityComponent = (application as CounterApp).appComponent.activityComponent().create()
-        activityComponent .inject(this)
+        activityComponent.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
         if (savedInstanceState == null) {

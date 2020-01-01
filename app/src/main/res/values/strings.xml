@@ -6,4 +6,5 @@
     <string name="title_new_counter_input">New counter title</string>
     <string name="app_title">You have %d Counters</string>
     <string name="app_subtitle">With a total of %d counts</string>
+    <string name="delete_button_content_description">delete button</string>
 </resources>

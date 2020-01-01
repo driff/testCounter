@@ -1,0 +1,7 @@
+com/squareup/retrofit2/Retrofit.class
+com/squareup/retrofit2/converter/gson/GsonConverterFactory.class
+com/squareup/retrofit2/adapter/rxjava2/RxJava2CallAdapterFactory.class
+com/squareup/okhttp3/Call.class
+com/squareup/okhttp3/OkHttpClient.class
+com/squareup/okhttp3/logging/HttpLoggingInterceptor.class
+java/lang/invoke/MethodHandles.class

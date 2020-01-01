@@ -8,7 +8,7 @@ import javax.inject.Provider
 class ViewModelFactory <T: ViewModel> @Inject constructor(private val viewModelProvider: Provider<T>): ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : androidx.lifecycle.ViewModel?> create(modelClass: Class<T>): T =
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T =
         viewModelProvider.get() as T
 
 }

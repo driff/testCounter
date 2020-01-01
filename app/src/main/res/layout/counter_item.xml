@@ -18,6 +18,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
+            <ImageButton
+                android:id="@+id/btnDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="#00FFFFFF"
+                android:tint="#7C7C7C"
+                android:padding="4dp"
+                android:translationX="4dp"
+                app:layout_constraintEnd_toEndOf="@+id/txvCount"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_delete_24dp"
+                android:contentDescription="@string/delete_button_content_description" />
+
             <TextView
                 android:id="@+id/txvCounterTitle"
                 android:layout_width="wrap_content"
@@ -35,7 +49,7 @@
 
             <Button
                 android:id="@+id/btnIncrease"
-                style="@style/Widget.AppCompat.Button.Small"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/text_btn_increase"
@@ -71,7 +85,7 @@
 
             <Button
                 android:id="@+id/btnDecrease"
-                style="@style/Widget.AppCompat.Button.Small"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Dialog.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/text_btn_decrease"

@@ -26,6 +26,7 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     }
 
     private fun loadCounters() {
+        Log.d(TAG, "Viewmodel Init")
         disposables.add(countersObserverHandler(repo.fetchCounters().toObservable()))
     }
 

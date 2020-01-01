@@ -5,13 +5,15 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
 import dagger.Provides
-import okhttp3.*
+import okhttp3.Call
+import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.text.DateFormat
 import javax.inject.Singleton
+
 
 @Module
 object NetworkModule {
@@ -43,7 +45,7 @@ object NetworkModule {
             .callFactory(callFactory)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .baseUrl("http://172.18.20.225:3000")
+            .baseUrl("http://192.168.0.16:3000")
             .build()
     }
 

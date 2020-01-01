@@ -43,8 +43,8 @@ class CounterAdapter @Inject constructor(val actionListener: ItemActions): Recyc
     inner class CounterHolder(private val view: View): RecyclerView.ViewHolder(view) {
 
         fun bindView(counter: Counter) {
-            view.txvCount.text = (counter.count ?: 0).toString()
-            view.txvCounterTitle.text = counter.title ?: "Counter:"
+            view.txvCount.text = (counter.count).toString()
+            view.txvCounterTitle.text = counter.title
             view.btnIncrease.setOnClickListener { actionListener.increase(counter) }
             view.btnDecrease.setOnClickListener { actionListener.decrease(counter) }
             view.setOnLongClickListener { actionListener.delete(counter); true }
