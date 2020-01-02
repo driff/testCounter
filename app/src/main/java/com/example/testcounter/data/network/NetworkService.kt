@@ -2,10 +2,7 @@ package com.example.testcounter.data.network
 
 import com.example.testcounter.data.models.Counter
 import io.reactivex.Single
-import retrofit2.http.Body
-import retrofit2.http.DELETE
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface NetworkService {
 
@@ -21,7 +18,7 @@ interface NetworkService {
     @POST("api/v1/counter/dec")
     fun decreaseCounter(@Body counter: Counter): Single<List<Counter>>
 
-    @DELETE("api/v1/counter")
+    @HTTP(method = "DELETE", path = "api/v1/counter", hasBody = true)
     fun deleteCounter(@Body counter: Counter): Single<List<Counter>>
 
 }

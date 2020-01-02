@@ -15,11 +15,14 @@ import com.example.testcounter.MainActivity
 import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.ui.factory.ViewModelFactory
+import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.counter_fragment.*
 import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
+
+    val disposables = CompositeDisposable()
 
     @Inject
     lateinit var counterAdapter: CounterAdapter
@@ -27,8 +30,7 @@ class MainFragment : Fragment() {
     @Inject
     lateinit var itemActions: CounterItemAction
 
-    @Inject
-    lateinit var viewModeFactory: ViewModelFactory<MainViewModel>
+    @Inject lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
 
     lateinit var viewModel: MainViewModel
 
@@ -47,9 +49,16 @@ class MainFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (activity!! as MainActivity).activityComponent.inject(this).also {
-            viewModel = ViewModelProviders.of(this, viewModeFactory).get(MainViewModel::class.java)
+            viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
             Log.d(TAG, "Viewmodel ref: $viewModel")
         }
+        disposables.addAll( itemActions.onIncrease.subscribe {
+            viewModel.updateCounter(it, true)
+        }, itemActions.onDecrease.subscribe{
+            viewModel.updateCounter(it, false)
+        }, itemActions.onDelete.subscribe{
+            viewModel.deleteCounter(it)
+        })
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -83,4 +92,8 @@ class MainFragment : Fragment() {
         counterAdapter.setCounters(it)
     }
 
+    override fun onDestroy() {
+        disposables.clear()
+        super.onDestroy()
+    }
 }

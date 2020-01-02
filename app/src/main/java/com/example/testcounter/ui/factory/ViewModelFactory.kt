@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModelProvider
 import javax.inject.Inject
 import javax.inject.Provider
 
-class ViewModelFactory <T: ViewModel> @Inject constructor(private val viewModelProvider: Provider<T>): ViewModelProvider.Factory {
+class ViewModelFactory<T : ViewModel> @Inject constructor(
+    private val viewModel: Provider<T>
+) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T =
-        viewModelProvider.get() as T
-
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return viewModel.get() as T
+    }
 }
