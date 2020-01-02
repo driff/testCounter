@@ -1,5 +1,6 @@
 package com.example.testcounter.di.modules
 
+import com.example.testcounter.BuildConfig
 import com.example.testcounter.data.network.NetworkService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -45,7 +46,7 @@ object NetworkModule {
             .callFactory(callFactory)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-            .baseUrl("http://192.168.0.16:3000")
+            .baseUrl(BuildConfig.API_URL)
             .build()
     }
 

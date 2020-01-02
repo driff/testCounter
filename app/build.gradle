@@ -26,7 +26,20 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            buildConfigField "String", "API_URL", DEBUG_API_URL
+        }
+        internal {
+            applicationIdSuffix ".test"
+            buildConfigField "String", "API_URL", INTERNAL_API_URL
+        }
+        staging {
+            applicationIdSuffix ".staging"
+            buildConfigField "String", "API_URL", STAGING_API_URL
+        }
         release {
+            buildConfigField "String", "API_URL", API_URL
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

@@ -14,21 +14,11 @@ class Repository @Inject constructor(val network: NetworkService) {
 
     fun addCounter(title: String) =
         network.postCounter(counter = Counter(title =  title))
-            .retry(2)
 
     fun increaseCounter(counter: Counter) = network.increaseCounter(counter)
-        .retry(2)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
 
     fun decreaseCounter(counter: Counter) = network.decreaseCounter(counter)
-        .retry(2)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
 
     fun deleteCounter(counter: Counter) = network.deleteCounter(counter)
-        .retry(2)
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
 
 }
