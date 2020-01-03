@@ -13,7 +13,8 @@ import javax.inject.Inject
 @PerActivity
 class CounterAdapter @Inject constructor(val actionListener: ItemActions): RecyclerView.Adapter<CounterAdapter.CounterHolder>() {
 
-    private var counters = listOf<Counter>()
+    private var counters = mutableListOf<Counter>()
+    private val deleteMap = mutableMapOf<String, Int>()
 
     interface ItemActions {
         fun increase(counter: Counter)
@@ -22,8 +23,22 @@ class CounterAdapter @Inject constructor(val actionListener: ItemActions): Recyc
     }
 
     fun setCounters(counters: List<Counter>) {
-        this.counters = counters
+        this.counters = counters.toMutableList()
         notifyDataSetChanged()
+    }
+
+    fun removeCounter(counter: Counter) {
+        val index = counters.indexOf(counter)
+        counters.removeAt(index)
+        notifyItemRemoved(index)
+        deleteMap[counter.id] = index
+    }
+
+    fun restoreItem(counter: Counter) {
+        val position = deleteMap[counter.id]!!
+        counters.add(position, counter)
+        notifyItemInserted(position)
+        deleteMap.clear()
     }
 
     override fun getItemCount(): Int {
@@ -47,7 +62,7 @@ class CounterAdapter @Inject constructor(val actionListener: ItemActions): Recyc
             view.txvCounterTitle.text = counter.title
             view.btnIncrease.setOnClickListener { actionListener.increase(counter) }
             view.btnDecrease.setOnClickListener { actionListener.decrease(counter) }
-            view.setOnLongClickListener { actionListener.delete(counter); true }
+            view.btnDeleteCounter.setOnClickListener { actionListener.delete(counter) }
         }
     }
 

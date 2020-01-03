@@ -6,4 +6,5 @@
     <color name="colorAccent">#F9AA33</color>
     <color name="colorAccentPressed">#FFD180</color>
     <color name="layout_bg_color">#EFEFEF</color>
+    <color name="colorTransparent">#00FFFFFF</color>
 </resources>

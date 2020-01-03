@@ -64,6 +64,7 @@ class MainFragment : Fragment() {
         }, itemActions.onDelete.subscribe{
             viewModel.deleteCounter(it)
             showUndoAction(R.string.msg_deleted_counter, it)
+            counterAdapter.removeCounter(it)
         })
         viewModel.getErrors().observe(this, errorObserver)
     }
@@ -116,9 +117,14 @@ class MainFragment : Fragment() {
 
     private fun showUndoAction(msg: Int, counter: Counter) {
         Snackbar.make(parent, msg, Snackbar.LENGTH_LONG)
-            .setAction(R.string.msg_undo) { viewModel.undoDelete(counter) }
+            .setAction(R.string.msg_undo) { undoClickAction(counter) }
             .setActionTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
             .show()
+    }
+
+    fun undoClickAction(counter: Counter) {
+        viewModel.undoDelete(counter)
+        counterAdapter.restoreItem(counter)
     }
 
     override fun onDestroy() {

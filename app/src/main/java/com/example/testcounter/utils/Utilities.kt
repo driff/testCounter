@@ -17,6 +17,6 @@ fun TextInputEditText.handleItemSearch(f: (e: MotionEvent, view: TextInputEditTe
         f)}
 }
 
-fun sumNumbers(numA: Int, numB: Int): Int {
+fun sum(numA: Int, numB: Int): Int {
     return numA + numB
 }

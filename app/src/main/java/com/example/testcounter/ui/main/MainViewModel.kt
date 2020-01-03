@@ -8,7 +8,7 @@ import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
-import com.example.testcounter.utils.sumNumbers
+import com.example.testcounter.utils.sum
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -76,7 +76,7 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
         }
         Observable.fromIterable(list).reduce(CounterTotal(0, list),
             { t1, t2 ->
-                return@reduce CounterTotal(sumNumbers(t1.sumTotal , t2.count), list)
+                return@reduce CounterTotal(sum(t1.sumTotal , t2.count), list)
             }).toObservable()
     }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())

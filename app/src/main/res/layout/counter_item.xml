@@ -18,6 +18,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <ImageButton
+                android:id="@+id/btnDeleteCounter"
+                style="@style/Widget.AppCompat.ImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/colorTransparent"
+                android:contentDescription="@string/cr_btn_delete"
+                android:padding="8dp"
+                android:translationX="4dp"
+                android:translationY="-4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_close_black_24dp" />
+
             <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/txvCounterTitle"
                 android:layout_width="0dp"

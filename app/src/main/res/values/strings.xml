@@ -11,4 +11,5 @@
     <string name="msg_no_connection_text">Couldn\'t reach the server, please check your connection</string>
     <string name="msg_undo">Undo</string>
     <string name="msg_deleted_counter">Counter Deleted!</string>
+    <string name="cr_btn_delete">Remove counter button</string>
 </resources>
