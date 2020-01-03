@@ -77,13 +77,12 @@ class MainFragment : Fragment() {
     }
 
     private fun addCounter() {
-        if(!edtNewCounterTitle.text.isNullOrEmpty() && edtNewCounterTitle.text?.length!! < 30) {
+        if(!edtNewCounterTitle.text.isNullOrEmpty() && edtNewCounterTitle.text?.length!! <= 30) {
             this.viewModel.addNewCounter(edtNewCounterTitle.text.toString()).also {
                 edtNewCounterTitle.text?.clear()
                 edtNewCounterTitle.clearFocus()
             }
         } else {
-            // TODO: Add snackbar with message for else case
             showSnackbarMessage(R.string.msg_no_input_text, Snackbar.LENGTH_LONG)
         }
     }
