@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -62,6 +63,7 @@ class MainFragment : Fragment() {
             viewModel.updateCounter(it, false)
         }, itemActions.onDelete.subscribe{
             viewModel.deleteCounter(it)
+            showUndoAction(R.string.msg_deleted_counter, it)
         })
         viewModel.getErrors().observe(this, errorObserver)
     }
@@ -110,6 +112,13 @@ class MainFragment : Fragment() {
 
     private fun showSnackbarMessage(msg: Int, length: Int = Snackbar.LENGTH_SHORT) {
         Snackbar.make(parent, msg, length).show()
+    }
+
+    private fun showUndoAction(msg: Int, counter: Counter) {
+        Snackbar.make(parent, msg, Snackbar.LENGTH_LONG)
+            .setAction(R.string.msg_undo) { viewModel.undoDelete(counter) }
+            .setActionTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
+            .show()
     }
 
     override fun onDestroy() {

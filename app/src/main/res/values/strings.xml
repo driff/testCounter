@@ -9,4 +9,6 @@
     <string name="delete_button_content_description">delete button</string>
     <string name="msg_no_input_text">You need to write the title for your Counter first!</string>
     <string name="msg_no_connection_text">Couldn\'t reach the server, please check your connection</string>
+    <string name="msg_undo">Undo</string>
+    <string name="msg_deleted_counter">Counter Deleted!</string>
 </resources>

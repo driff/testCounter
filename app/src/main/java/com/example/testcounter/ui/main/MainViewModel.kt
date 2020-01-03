@@ -8,10 +8,13 @@ import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
+import com.example.testcounter.utils.sumNumbers
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @PerActivity
@@ -20,10 +23,11 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     private val disposables = CompositeDisposable()
 
     private val TAG = this.javaClass.canonicalName
+    private val undoActions = mutableMapOf<String, Disposable>()
     private val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
     fun getCounters(): LiveData<List<Counter>> = counterList
-    private val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
-    fun getCountTotal(): LiveData<CounterTotals> = countTotals
+    private val countTotal: MutableLiveData<CounterTotal> = MutableLiveData()
+    fun getCountTotal(): LiveData<CounterTotal> = countTotal
     private val errors: MutableLiveData<Int> = MutableLiveData()
     fun getErrors(): LiveData<Int> = errors
     init {
@@ -47,7 +51,13 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     }
 
     fun deleteCounter(counter: Counter) {
-        disposables.add(countersObserverHandler(repo.deleteCounter(counter).toObservable()))
+        val disposable = countersObserverHandler(
+            Observable.just(counter)
+                .delay(3L, TimeUnit.SECONDS)
+                .concatMap { repo.deleteCounter(counter).toObservable() }
+        )
+        undoActions[counter.id] = disposable
+        disposables.add(disposable)
     }
 
     fun addNewCounter(title: String) {
@@ -56,29 +66,33 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
         }
     }
 
+    fun undoDelete(counter: Counter) {
+        disposables.remove(this.undoActions[counter.id]!!)
+    }
+
     private fun countersObserverHandler(obs: Observable<List<Counter>>) = obs.concatMap {list ->
         if(list.isEmpty()) {
-            return@concatMap Observable.just(CounterTotals(0, 0, listOf()))
+            return@concatMap Observable.just(CounterTotal(0, listOf()))
         }
-        Observable.fromIterable(list).reduce(CounterTotals(list.size, 0, list),
+        Observable.fromIterable(list).reduce(CounterTotal(0, list),
             { t1, t2 ->
-                return@reduce CounterTotals(list.size, t1.sumTotal + t2.count, list)
+                return@reduce CounterTotal(sumNumbers(t1.sumTotal , t2.count), list)
             }).toObservable()
-    }.firstOrError()
-        .subscribeOn(Schedulers.io())
+    }.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe ({ t ->
             counterList.postValue(t.counters)
-            countTotals.postValue(t)
+            countTotal.postValue(t)
         }, { err->
-            Log.d(TAG, err.message?: "Viewmodel Error")
+            Log.e(TAG, err.message?: "Viewmodel Error")
             this.errors.postValue(R.string.msg_no_connection_text)
         })
 
     override fun onCleared() {
         disposables.clear()
+        undoActions.clear()
         super.onCleared()
     }
 }
 
-data class CounterTotals(val count: Int = 0, val sumTotal: Int = 0, val counters: List<Counter>)
+data class CounterTotal(val sumTotal: Int = 0, val counters: List<Counter>)

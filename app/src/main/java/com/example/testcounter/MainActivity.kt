@@ -4,17 +4,16 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.example.testcounter.data.models.Counter
 import com.example.testcounter.di.components.ActivityComponent
 import com.example.testcounter.ui.factory.ViewModelFactory
-import com.example.testcounter.ui.main.CounterAdapter_Factory
-import com.example.testcounter.ui.main.CounterTotals
+import com.example.testcounter.ui.main.CounterTotal
 import com.example.testcounter.ui.main.MainFragment
 import com.example.testcounter.ui.main.MainViewModel
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
 
-    private val TAG = this.javaClass.canonicalName
     lateinit var activityComponent: ActivityComponent
     @Inject lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
     lateinit var viewModel: MainViewModel
@@ -34,8 +33,8 @@ class MainActivity : AppCompatActivity() {
         setTitleAndSubtitle(0, 0)
     }
 
-    private val updateCounterTotals = Observer<CounterTotals> {(count: Int, sumTotal: Int) ->
-        setTitleAndSubtitle(count, sumTotal)
+    private val updateCounterTotals = Observer<CounterTotal> { (sumTotal: Int, list: List<Counter>) ->
+        setTitleAndSubtitle(list.size, sumTotal)
     }
 
     private fun setTitleAndSubtitle(count: Int, sumTotal: Int) {
