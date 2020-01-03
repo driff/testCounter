@@ -1,8 +1,10 @@
 package com.example.testcounter.ui.main
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.data.transactions.Repository
 import com.example.testcounter.di.PerActivity
@@ -17,16 +19,18 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
 
     private val disposables = CompositeDisposable()
 
-    val TAG = this.javaClass.canonicalName
-    val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
-    val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
-
+    private val TAG = this.javaClass.canonicalName
+    private val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
+    fun getCounters(): LiveData<List<Counter>> = counterList
+    private val countTotals: MutableLiveData<CounterTotals> = MutableLiveData()
+    fun getCountTotal(): LiveData<CounterTotals> = countTotals
+    private val errors: MutableLiveData<Int> = MutableLiveData()
+    fun getErrors(): LiveData<Int> = errors
     init {
         loadCounters()
     }
 
     private fun loadCounters() {
-        Log.d(TAG, "Viewmodel Init")
         disposables.add(countersObserverHandler(repo.fetchCounters().toObservable()))
     }
 
@@ -68,6 +72,7 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
             countTotals.postValue(t)
         }, { err->
             Log.d(TAG, err.message?: "Viewmodel Error")
+            this.errors.postValue(R.string.msg_no_connection_text)
         })
 
     override fun onCleared() {

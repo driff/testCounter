@@ -7,4 +7,6 @@
     <string name="app_title">You have %d Counters</string>
     <string name="app_subtitle">With a total of %d counts</string>
     <string name="delete_button_content_description">delete button</string>
+    <string name="msg_no_input_text">You need to write the title for your Counter first!</string>
+    <string name="msg_no_connection_text">Couldn\'t reach the server, please check your connection</string>
 </resources>

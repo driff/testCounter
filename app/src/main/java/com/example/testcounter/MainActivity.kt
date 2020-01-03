@@ -30,11 +30,15 @@ class MainActivity : AppCompatActivity() {
                 .commitNow()
         }
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
-        viewModel.countTotals.observe(this, updateCounterTotals)
-
+        viewModel.getCountTotal().observe(this, updateCounterTotals)
+        setTitleAndSubtitle(0, 0)
     }
 
     private val updateCounterTotals = Observer<CounterTotals> {(count: Int, sumTotal: Int) ->
+        setTitleAndSubtitle(count, sumTotal)
+    }
+
+    private fun setTitleAndSubtitle(count: Int, sumTotal: Int) {
         supportActionBar?.title = String.format(baseContext.getString(R.string.app_title), count)
         supportActionBar?.subtitle = String.format(baseContext.getString(R.string.app_subtitle), sumTotal)
     }

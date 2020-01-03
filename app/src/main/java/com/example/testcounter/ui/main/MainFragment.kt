@@ -18,14 +18,16 @@ import com.example.testcounter.data.models.Counter
 import com.example.testcounter.ui.factory.ViewModelFactory
 import com.example.testcounter.utils.DRAWABLE_RIGHT
 import com.example.testcounter.utils.handleItemSearch
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.counter_fragment.*
+import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
 
-    val disposables = CompositeDisposable()
+    private val disposables = CompositeDisposable()
 
     @Inject
     lateinit var counterAdapter: CounterAdapter
@@ -53,7 +55,6 @@ class MainFragment : Fragment() {
         super.onAttach(context)
         (activity!! as MainActivity).activityComponent.inject(this).also {
             viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
-            Log.d(TAG, "Viewmodel ref: $viewModel")
         }
         disposables.addAll( itemActions.onIncrease.subscribe {
             viewModel.updateCounter(it, true)
@@ -62,30 +63,34 @@ class MainFragment : Fragment() {
         }, itemActions.onDelete.subscribe{
             viewModel.deleteCounter(it)
         })
+        viewModel.getErrors().observe(this, errorObserver)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         countersRecycler.apply {
             setHasFixedSize(true)
-            layoutManager = GridLayoutManager(requireContext(), 3, RecyclerView.VERTICAL, false)
+            layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
             adapter = counterAdapter
         }
         edtNewCounterTitle.handleItemSearch(this::onItemSearch)
     }
 
-    fun addCounter() {
+    private fun addCounter() {
         if(!edtNewCounterTitle.text.isNullOrEmpty() && edtNewCounterTitle.text?.length!! < 30) {
             this.viewModel.addNewCounter(edtNewCounterTitle.text.toString()).also {
                 edtNewCounterTitle.text?.clear()
+                edtNewCounterTitle.clearFocus()
             }
+        } else {
+            // TODO: Add snackbar with message for else case
+            showSnackbarMessage(R.string.msg_no_input_text, Snackbar.LENGTH_LONG)
         }
-        // TODO: Add snackbar with message for else case
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel.counterList.observe(this, countersObserver)
+        viewModel.getCounters().observe(this, countersObserver)
     }
 
     // Observers
@@ -94,12 +99,18 @@ class MainFragment : Fragment() {
         counterAdapter.setCounters(it)
     }
 
+    private val errorObserver = Observer<Int> { showSnackbarMessage(it) }
+
     private fun onItemSearch(event: MotionEvent, view: TextInputEditText): Boolean {
         if(event.rawX >= (view.right - view.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
             addCounter()
             return true
         }
         return false
+    }
+
+    private fun showSnackbarMessage(msg: Int, length: Int = Snackbar.LENGTH_SHORT) {
+        Snackbar.make(parent, msg, length).show()
     }
 
     override fun onDestroy() {

@@ -47,7 +47,7 @@ class CounterAdapter @Inject constructor(val actionListener: ItemActions): Recyc
             view.txvCounterTitle.text = counter.title
             view.btnIncrease.setOnClickListener { actionListener.increase(counter) }
             view.btnDecrease.setOnClickListener { actionListener.decrease(counter) }
-            view.btnDelete.setOnClickListener { actionListener.delete(counter) }
+            view.setOnLongClickListener { actionListener.delete(counter); true }
         }
     }
 
