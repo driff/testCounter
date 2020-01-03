@@ -34,7 +34,7 @@ class MainFragment : Fragment() {
     lateinit var counterAdapter: CounterAdapter
 
     @Inject
-    lateinit var itemActions: CounterItemAction
+    lateinit var itemListActions: CounterListActions
 
     @Inject lateinit var viewModelFactory: ViewModelFactory<MainViewModel>
 
@@ -57,14 +57,20 @@ class MainFragment : Fragment() {
         (activity!! as MainActivity).activityComponent.inject(this).also {
             viewModel = ViewModelProviders.of(this, viewModelFactory).get(MainViewModel::class.java)
         }
-        disposables.addAll( itemActions.onIncrease.subscribe {
+        loadObservers()
+    }
+
+    private fun loadObservers() {
+        disposables.addAll( itemListActions.onIncrease.subscribe {
             viewModel.updateCounter(it, true)
-        }, itemActions.onDecrease.subscribe{
+        }, itemListActions.onDecrease.subscribe{
             viewModel.updateCounter(it, false)
-        }, itemActions.onDelete.subscribe{
+        }, itemListActions.onDelete.subscribe{
             viewModel.deleteCounter(it)
             showUndoAction(R.string.msg_deleted_counter, it)
             counterAdapter.removeCounter(it)
+        }, itemListActions.onRefresh.subscribe{
+            viewModel.refreshCounters()
         })
         viewModel.getErrors().observe(this, errorObserver)
     }
@@ -75,6 +81,7 @@ class MainFragment : Fragment() {
             setHasFixedSize(true)
             layoutManager = GridLayoutManager(requireContext(), 2, RecyclerView.VERTICAL, false)
             adapter = counterAdapter
+            swipeRefreshContainer.setOnRefreshListener(itemListActions)
         }
         edtNewCounterTitle.handleItemSearch(this::onItemSearch)
     }
@@ -99,9 +106,10 @@ class MainFragment : Fragment() {
     private val countersObserver = Observer<List<Counter>> {
         Log.d(TAG, "list changed!!")
         counterAdapter.setCounters(it)
+        swipeRefreshContainer.isRefreshing = false
     }
 
-    private val errorObserver = Observer<Int> { showSnackbarMessage(it) }
+    private val errorObserver = Observer<Int> { showSnackbarMessage(it); swipeRefreshContainer.isRefreshing = false }
 
     private fun onItemSearch(event: MotionEvent, view: TextInputEditText): Boolean {
         if(event.rawX >= (view.right - view.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {

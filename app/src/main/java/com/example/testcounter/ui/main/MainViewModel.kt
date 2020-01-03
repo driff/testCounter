@@ -93,6 +93,10 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
         undoActions.clear()
         super.onCleared()
     }
+
+    fun refreshCounters() {
+        this.loadCounters()
+    }
 }
 
 data class CounterTotal(val sumTotal: Int = 0, val counters: List<Counter>)

@@ -1,17 +1,18 @@
 package com.example.testcounter.ui.main
 
-import android.util.Log
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.di.PerActivity
 import io.reactivex.subjects.PublishSubject
 import javax.inject.Inject
 
 @PerActivity
-class CounterItemAction @Inject constructor() : CounterAdapter.ItemActions {
+class CounterListActions @Inject constructor() : CounterAdapter.ItemActions, SwipeRefreshLayout.OnRefreshListener {
 
     val onIncrease = PublishSubject.create<Counter>()
     val onDecrease = PublishSubject.create<Counter>()
     val onDelete =   PublishSubject.create<Counter>()
+    val onRefresh =   PublishSubject.create<Boolean>()
 
     override fun increase(counter: Counter) {
         onIncrease.onNext(counter)
@@ -23,5 +24,9 @@ class CounterItemAction @Inject constructor() : CounterAdapter.ItemActions {
 
     override fun delete(counter: Counter) {
         onDelete.onNext(counter)
+    }
+
+    override fun onRefresh() {
+        this.onRefresh.onNext(true)
     }
 }
