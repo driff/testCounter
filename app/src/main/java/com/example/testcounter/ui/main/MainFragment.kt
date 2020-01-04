@@ -42,7 +42,6 @@ class MainFragment : Fragment() {
 
     companion object {
         fun newInstance() = MainFragment()
-        val TAG = this::class.simpleName
     }
 
     override fun onCreateView(
@@ -104,7 +103,6 @@ class MainFragment : Fragment() {
 
     // Observers
     private val countersObserver = Observer<List<Counter>> {
-        Log.d(TAG, "list changed!!")
         counterAdapter.setCounters(it)
         swipeRefreshContainer.isRefreshing = false
     }

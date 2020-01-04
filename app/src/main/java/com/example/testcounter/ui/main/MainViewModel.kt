@@ -1,6 +1,5 @@
 package com.example.testcounter.ui.main
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -22,7 +21,6 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
 
     private val disposables = CompositeDisposable()
 
-    private val TAG = this.javaClass.canonicalName
     private val undoActions = mutableMapOf<String, Disposable>()
     private val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
     fun getCounters(): LiveData<List<Counter>> = counterList
@@ -84,7 +82,6 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
             counterList.postValue(t.counters)
             countTotal.postValue(t)
         }, { err->
-            Log.e(TAG, err.message?: "Viewmodel Error")
             this.errors.postValue(R.string.msg_no_connection_text)
         })
 
