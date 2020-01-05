@@ -41,5 +41,4 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.title = String.format(baseContext.getString(R.string.app_title), count)
         supportActionBar?.subtitle = String.format(baseContext.getString(R.string.app_subtitle), sumTotal)
     }
-
 }

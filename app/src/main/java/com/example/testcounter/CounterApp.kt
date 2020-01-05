@@ -1,10 +1,11 @@
 package com.example.testcounter
 
 import android.app.Application
+import androidx.multidex.MultiDexApplication
 import com.example.testcounter.di.components.AppComponent
 import com.example.testcounter.di.components.DaggerAppComponent
 
-class CounterApp: Application() {
+class CounterApp: MultiDexApplication() {
 
     val appComponent: AppComponent by lazy {
         DaggerAppComponent.factory().create(applicationContext)

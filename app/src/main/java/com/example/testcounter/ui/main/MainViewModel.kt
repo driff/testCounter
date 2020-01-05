@@ -1,5 +1,6 @@
 package com.example.testcounter.ui.main
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -20,8 +21,6 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val repo: Repository) : ViewModel() {
 
     private val disposables = CompositeDisposable()
-
-    private val undoActions = mutableMapOf<String, Disposable>()
     private val counterList: MutableLiveData<List<Counter>> = MutableLiveData()
     fun getCounters(): LiveData<List<Counter>> = counterList
     private val countTotal: MutableLiveData<CounterTotal> = MutableLiveData()
@@ -49,23 +48,13 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
     }
 
     fun deleteCounter(counter: Counter) {
-        val disposable = countersObserverHandler(
-            Observable.just(counter)
-                .delay(3L, TimeUnit.SECONDS)
-                .concatMap { repo.deleteCounter(counter).toObservable() }
-        )
-        undoActions[counter.id] = disposable
-        disposables.add(disposable)
+        disposables.add(countersObserverHandler(repo.deleteCounter(counter).toObservable()))
     }
 
     fun addNewCounter(title: String) {
         if (!title.isEmpty()) {
             disposables.add( countersObserverHandler(repo.addCounter(title).toObservable()))
         }
-    }
-
-    fun undoDelete(counter: Counter) {
-        disposables.remove(this.undoActions[counter.id]!!)
     }
 
     private fun countersObserverHandler(obs: Observable<List<Counter>>) = obs.concatMap {list ->
@@ -82,13 +71,19 @@ class MainViewModel @Inject constructor(private val repo: Repository) : ViewMode
             counterList.postValue(t.counters)
             countTotal.postValue(t)
         }, { err->
-            this.errors.postValue(R.string.msg_no_connection_text)
+            Log.e(this.javaClass.canonicalName, err.message, err)
+            when(err) {
+                is java.net.ConnectException -> {
+                    this.errors.postValue(R.string.msg_no_connection_text)
+                }
+                else -> this.errors.postValue(R.string.msg_error_unknown)
+            }
         })
 
+
     override fun onCleared() {
-        disposables.clear()
-        undoActions.clear()
         super.onCleared()
+        disposables.clear()
     }
 
     fun refreshCounters() {

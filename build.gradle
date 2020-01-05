@@ -36,6 +36,7 @@ ext {
     rxAndroidVersion = '2.1.1'
     retrofitVersion = '2.7.0'
     okHttpVersion = '4.2.1'
+    fragmentVersion = '1.1.0'
     daggerVersion = '2.25.3'
     lifecycleVersion = '2.1.0'
     constraintLayoutVersion = '1.1.3'

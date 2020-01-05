@@ -2,12 +2,11 @@ package com.example.testcounter.ui.main
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -23,7 +22,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.counter_fragment.*
-import kotlinx.android.synthetic.main.main_fragment.*
 import javax.inject.Inject
 
 class MainFragment : Fragment() {
@@ -48,7 +46,7 @@ class MainFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        return inflater.inflate(R.layout.counter_fragment, container, false)
     }
 
     override fun onAttach(context: Context) {
@@ -61,17 +59,35 @@ class MainFragment : Fragment() {
 
     private fun loadObservers() {
         disposables.addAll( itemListActions.onIncrease.subscribe {
+            showProgressBar(true)
             viewModel.updateCounter(it, true)
         }, itemListActions.onDecrease.subscribe{
+            showProgressBar(true)
             viewModel.updateCounter(it, false)
         }, itemListActions.onDelete.subscribe{
-            viewModel.deleteCounter(it)
-            showUndoAction(R.string.msg_deleted_counter, it)
-            counterAdapter.removeCounter(it)
+            showDeleteDialog(it)
         }, itemListActions.onRefresh.subscribe{
             viewModel.refreshCounters()
+            showProgressBar(true)
         })
         viewModel.getErrors().observe(this, errorObserver)
+    }
+
+    private fun showDeleteDialog(it: Counter) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.delete_counter_title)
+            .setMessage(R.string.delete_counter_message)
+            .setPositiveButton(R.string.positive_action) { dialog, _ ->
+                showProgressBar(true)
+                viewModel.deleteCounter(it)
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.negative_action) {dialog, _ -> dialog.dismiss() }
+            .show()
+    }
+
+    private fun showProgressBar(show: Boolean) {
+        progressBar.visibility = if(show) View.VISIBLE else View.GONE
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -90,6 +106,7 @@ class MainFragment : Fragment() {
             this.viewModel.addNewCounter(edtNewCounterTitle.text.toString()).also {
                 edtNewCounterTitle.text?.clear()
                 edtNewCounterTitle.clearFocus()
+                showProgressBar(true)
             }
         } else {
             showSnackbarMessage(R.string.msg_no_input_text, Snackbar.LENGTH_LONG)
@@ -105,9 +122,14 @@ class MainFragment : Fragment() {
     private val countersObserver = Observer<List<Counter>> {
         counterAdapter.setCounters(it)
         swipeRefreshContainer.isRefreshing = false
+        showProgressBar(false)
     }
 
-    private val errorObserver = Observer<Int> { showSnackbarMessage(it); swipeRefreshContainer.isRefreshing = false }
+    private val errorObserver = Observer<Int> {
+        showSnackbarMessage(it)
+        swipeRefreshContainer.isRefreshing = false
+        showProgressBar(false)
+    }
 
     private fun onItemSearch(event: MotionEvent, view: TextInputEditText): Boolean {
         if(event.rawX >= (view.right - view.compoundDrawables[DRAWABLE_RIGHT].bounds.width())) {
@@ -118,20 +140,9 @@ class MainFragment : Fragment() {
     }
 
     private fun showSnackbarMessage(msg: Int, length: Int = Snackbar.LENGTH_SHORT) {
-        Snackbar.make(parent, msg, length).show()
+        Snackbar.make(main, msg, length).show()
     }
 
-    private fun showUndoAction(msg: Int, counter: Counter) {
-        Snackbar.make(parent, msg, Snackbar.LENGTH_LONG)
-            .setAction(R.string.msg_undo) { undoClickAction(counter) }
-            .setActionTextColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
-            .show()
-    }
-
-    fun undoClickAction(counter: Counter) {
-        viewModel.undoDelete(counter)
-        counterAdapter.restoreItem(counter)
-    }
 
     override fun onDestroy() {
         disposables.clear()

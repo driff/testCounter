@@ -22,6 +22,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
+        multiDexEnabled true
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,6 +45,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    sourceSets {
+        androidTest {
+            java.srcDirs += "src/sharedTest/java"
+            kotlin.srcDirs += "src/sharedTest/java"
+        }
+        test {
+            java.srcDirs += "src/sharedTest/java"
+            kotlin.srcDirs += "src/sharedTest/java"
+        }
+    }
+
 }
 
 
@@ -67,11 +80,24 @@ dependencies {
     implementation "com.google.dagger:dagger:$daggerVersion" // if you use the support libraries
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
     testImplementation 'junit:junit:4.12'
-    testImplementation "org.mockito:mockito-core:2.25.0"
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    testImplementation 'org.mockito:mockito-core:2.25.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
+    implementation "androidx.multidex:multidex:$multidex_version"
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
+
+    implementation("androidx.test:core:1.1.0")
+    debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    testImplementation("org.mockito:mockito-core:2.25.0")
+    testImplementation("androidx.test:runner:1.1.1")
+    testImplementation("androidx.test.ext:junit:1.1.1")
+    testImplementation("androidx.test.espresso:espresso-core:3.2.0")
+    testImplementation("androidx.test.ext:truth:1.1.0")
+    testImplementation("org.robolectric:robolectric:4.3")
+    androidTestImplementation("org.mockito:mockito-core:2.25.0")
+    androidTestImplementation("org.mockito:mockito-android:2.25.0")
+    androidTestImplementation("androidx.test:runner:1.1.1")
+    androidTestImplementation("androidx.test.ext:junit:1.1.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.2.0")
+    androidTestImplementation("androidx.test.ext:truth:1.1.0")
+
 }

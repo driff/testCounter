@@ -12,4 +12,9 @@
     <string name="msg_undo">Undo</string>
     <string name="msg_deleted_counter">Counter Deleted!</string>
     <string name="cr_btn_delete">Remove counter button</string>
+    <string name="msg_error_unknown">Sorry, the action could not be executed</string>
+    <string name="delete_counter_title">Delete Counter</string>
+    <string name="delete_counter_message">Do you want to delete this counter?</string>
+    <string name="negative_action">No</string>
+    <string name="positive_action">Yes</string>
 </resources>

@@ -12,6 +12,4 @@ abstract class ListenersModule {
     @PerActivity
     @Binds
     abstract fun provideItemAction(listActions: CounterListActions): CounterAdapter.ItemActions
-
-
 }

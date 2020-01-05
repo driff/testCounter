@@ -8,13 +8,13 @@ import com.example.testcounter.R
 import com.example.testcounter.data.models.Counter
 import com.example.testcounter.di.PerActivity
 import kotlinx.android.synthetic.main.counter_item.view.*
+import java.util.function.BiConsumer
 import javax.inject.Inject
 
 @PerActivity
 class CounterAdapter @Inject constructor(val actionListener: ItemActions): RecyclerView.Adapter<CounterAdapter.CounterHolder>() {
 
     private var counters = mutableListOf<Counter>()
-    private val deleteMap = mutableMapOf<String, Int>()
 
     interface ItemActions {
         fun increase(counter: Counter)
@@ -31,14 +31,6 @@ class CounterAdapter @Inject constructor(val actionListener: ItemActions): Recyc
         val index = counters.indexOf(counter)
         counters.removeAt(index)
         notifyItemRemoved(index)
-        deleteMap[counter.id] = index
-    }
-
-    fun restoreItem(counter: Counter) {
-        val position = deleteMap[counter.id]!!
-        counters.add(position, counter)
-        notifyItemInserted(position)
-        deleteMap.clear()
     }
 
     override fun getItemCount(): Int {
